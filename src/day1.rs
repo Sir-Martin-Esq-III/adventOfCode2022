@@ -1,6 +1,4 @@
 //Bit grim
-use rayon::prelude::*;
-
 #[aoc_generator(day1)]
 pub fn input_generator(input: &str) -> Vec<Vec<i32>> {
     return input
@@ -16,11 +14,7 @@ pub fn input_generator(input: &str) -> Vec<Vec<i32>> {
 
 #[aoc(day1, part1)]
 pub fn solve_part1(input: &Vec<Vec<i32>>) -> i32 {
-    input
-        .iter()
-        .map(|val| return val.iter().sum())
-        .max()
-        .unwrap()
+    input.iter().map(|val| val.iter().sum()).max().unwrap()
 }
 
 #[aoc(day1, part2)]
