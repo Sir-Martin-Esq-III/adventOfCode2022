@@ -18,8 +18,7 @@ pub fn solve_part1(input: &Vec<i32>) -> i32 {
 
 #[aoc(day1, part2)]
 pub fn solve_part2(input: &Vec<i32>) -> i32 {
-    //You can't pass in a &mut as an arg to the function so you need to clone it :(
-    let mut t = input.clone();
+    let mut t = input.to_owned();
     t.sort_by(|a, b| b.cmp(a));
     t.iter().take(3).sum()
 }
