@@ -1,11 +1,10 @@
-//Bit grim
 #[aoc_generator(day1)]
 pub fn input_generator(input: &str) -> Vec<i32> {
     return input
         .split("\n\n")
         .map(|sp| {
             return sp
-                .lines()
+                .split('\n')
                 .map(|input| return input.parse::<i32>().unwrap())
                 .sum::<i32>();
         })
