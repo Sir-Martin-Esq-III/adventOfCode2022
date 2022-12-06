@@ -8,7 +8,7 @@ pub struct SupplyStack {
     crane: Vec<VecDeque<char>>,
     instr: Vec<String>,
 }
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub enum CraneType {
     CrateMover9000,
     CrateMover9001,
@@ -17,24 +17,26 @@ pub enum CraneType {
 impl SupplyStack {
     pub fn run_instr(&mut self, crane_type: CraneType) -> &mut Self {
         for instruction in self.instr.iter() {
-            let re = Regex::new(r"(\d+)").unwrap();
+            let g = instruction
+                .replace("move ", "")
+                .replace(" from ", ",")
+                .replace(" to ", ",");
 
-            let t = re
-                .captures_iter(instruction)
-                .map(|val| return val[0].parse::<i32>().unwrap())
-                .collect_tuple::<(i32, i32, i32)>()
-                .unwrap();
+            let values = g
+                .split(',')
+                .map(|val| val.parse::<i32>().unwrap())
+                .collect::<Vec<i32>>();
 
-            let mut new = self.crane[t.1 as usize - 1]
-                .drain(..t.0 as usize)
+            let mut new = self.crane[values[1] as usize - 1]
+                .drain(..values[0] as usize)
                 .collect_vec();
 
             if crane_type == CraneType::CrateMover9001 {
                 new.reverse();
             }
 
-            for i in 0..t.0 {
-                self.crane[t.2 as usize - 1].push_front(new[i as usize]);
+            for i in 0..values[0] {
+                self.crane[values[2] as usize - 1].push_front(new[i as usize]);
             }
         }
 
@@ -58,13 +60,11 @@ pub fn input_generator(input: &str) -> SupplyStack {
     let mut parsed_board: Vec<VecDeque<char>> = vec![VecDeque::new(); 9];
 
     for row in inputs[0].lines() {
-        let mut idx_tracker = 0;
-        for set in row.chars().collect_vec().chunks(4) {
+        for (idx_tracker, set) in row.chars().collect_vec().chunks(4).enumerate() {
             let r = set.iter().unique().join("");
             if r != " " {
-                parsed_board[idx_tracker].push_back(r.chars().nth(1).unwrap().clone());
+                parsed_board[idx_tracker].push_back(r.chars().nth(1).unwrap());
             }
-            idx_tracker += 1;
         }
     }
 
