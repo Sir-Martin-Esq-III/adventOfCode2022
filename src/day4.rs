@@ -27,7 +27,7 @@ fn is_fully_overlapping(s1: (i32, i32), s2: (i32, i32)) -> bool {
     if rng2.contains(&s1.0) && rng2.contains(&s1.1) {
         return true;
     }
-    return false;
+    false
 }
 
 fn is_partially_overlapping(s1: (i32, i32), s2: (i32, i32)) -> bool {
@@ -40,7 +40,7 @@ fn is_partially_overlapping(s1: (i32, i32), s2: (i32, i32)) -> bool {
     if rng2.contains(&s1.0) || rng2.contains(&s1.1) {
         return true;
     }
-    return false;
+    false
 }
 
 #[aoc(day4, part1)]

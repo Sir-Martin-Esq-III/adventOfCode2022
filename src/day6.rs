@@ -9,7 +9,7 @@ fn find_unique_seq_of_len(input: &str, len: i32) -> i32 {
         counter += 1
     }
 
-    return len + counter;
+    len + counter
 }
 
 #[aoc(day6, part1)]
