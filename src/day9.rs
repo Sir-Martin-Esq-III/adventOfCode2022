@@ -21,6 +21,8 @@ impl Movement {
     }
 }
 
+type Vec2d = (i32, i32);
+
 #[aoc_generator(day9)]
 pub fn input_generator(input: &str) -> Vec<Movement> {
     return input
@@ -65,8 +67,6 @@ fn update_knot_position(p1: &Vec2d, p2: &Vec2d) -> Vec2d {
     return new_val;
 }
 
-type Vec2d = (i32, i32);
-
 fn get_distance_between_positions(p1: &Vec2d, p2: &Vec2d) -> i32 {
     let x_diff = (p1.0 - p2.0).abs();
     let y_diff = (p1.1 - p2.1).abs();
@@ -74,61 +74,20 @@ fn get_distance_between_positions(p1: &Vec2d, p2: &Vec2d) -> i32 {
     cmp::max(x_diff, y_diff)
 }
 
-#[aoc(day9, part1)]
-pub fn solve_part1(input: &Vec<Movement>) -> usize {
-    let mut H: Vec2d = (0, 0);
-    let mut T: Vec2d = (0, 0);
-    let mut visited_positions: HashSet<Vec2d> = HashSet::new();
-    visited_positions.insert(T);
-    for row in input {
-        match row {
-            Movement::Up(distance) => {
-                for _ in 0..*distance {
-                    H.1 += 1;
-                    if get_distance_between_positions(&H, &T) > 1 {
-                        T = (H.0, H.1 - 1);
-                        visited_positions.insert(T);
-                    }
-                }
-            }
-            Movement::Down(distance) => {
-                for _ in 0..*distance {
-                    H.1 -= 1;
-                    if get_distance_between_positions(&H, &T) > 1 {
-                        T = (H.0, H.1 + 1);
-                        visited_positions.insert(T);
-                    }
-                }
-            }
-            Movement::Left(distance) => {
-                for _ in 0..*distance {
-                    H.0 -= 1;
-                    if get_distance_between_positions(&H, &T) > 1 {
-                        T = (H.0 + 1, H.1);
-                        visited_positions.insert(T);
-                    }
-                }
-            }
-            Movement::Right(distance) => {
-                for _ in 0..*distance {
-                    H.0 += 1;
-                    if get_distance_between_positions(&H, &T) > 1 {
-                        T = (H.0 - 1, H.1);
-                        visited_positions.insert(T);
-                    }
-                }
-            }
+fn update_rope(length: usize, rope: &mut Vec<Vec2d>, visited: &mut HashSet<Vec2d>) {
+    for i in 0..length {
+        if get_distance_between_positions(&rope[i], &rope[i + 1]) > 1 {
+            rope[i + 1] = update_knot_position(&rope[i], &rope[i + 1]);
+        }
+
+        if i == length - 1 {
+            visited.insert(rope[i + 1]);
         }
     }
-
-    visited_positions.len()
 }
 
-const knot_length: usize = 10;
-
-#[aoc(day9, part2)]
-pub fn solve_part2(input: &Vec<Movement>) -> usize {
-    let mut rope: Vec<Vec2d> = vec![(0, 0); knot_length];
+fn solve(length: usize, input: &Vec<Movement>) -> usize {
+    let mut rope: Vec<Vec2d> = vec![(0, 0); length];
     let mut visited_positions: HashSet<Vec2d> = HashSet::new();
 
     visited_positions.insert((0, 0));
@@ -137,74 +96,40 @@ pub fn solve_part2(input: &Vec<Movement>) -> usize {
         match row {
             Movement::Up(distance) => {
                 for _ in 0..*distance {
-                    for i in 0..knot_length - 1 {
-                        if i == 0 {
-                            rope[i].1 += 1;
-                        }
-
-                        if get_distance_between_positions(&rope[i], &rope[i + 1]) > 1 {
-                            let new_pos = update_knot_position(&rope[i], &rope[i + 1]);
-                            rope[i + 1] = new_pos;
-                        }
-                        if i == knot_length - 2 {
-                            visited_positions.insert(rope[i + 1]);
-                        }
-                    }
+                    rope[0].1 += 1;
+                    update_rope(length - 1, &mut rope, &mut visited_positions);
                 }
             }
             Movement::Down(distance) => {
                 for _ in 0..*distance {
-                    for i in 0..knot_length - 1 {
-                        if i == 0 {
-                            rope[i].1 -= 1;
-                        }
-
-                        if get_distance_between_positions(&rope[i], &rope[i + 1]) > 1 {
-                            let new_pos = update_knot_position(&rope[i], &rope[i + 1]);
-                            rope[i + 1] = new_pos;
-                        }
-                        if i == knot_length - 2 {
-                            visited_positions.insert(rope[i + 1]);
-                        }
-                    }
+                    rope[0].1 -= 1;
+                    update_rope(length - 1, &mut rope, &mut visited_positions);
                 }
             }
             Movement::Left(distance) => {
                 for _ in 0..*distance {
-                    for i in 0..knot_length - 1 {
-                        if i == 0 {
-                            rope[i].0 -= 1;
-                        }
-
-                        if get_distance_between_positions(&rope[i], &rope[i + 1]) > 1 {
-                            let new_pos = update_knot_position(&rope[i], &rope[i + 1]);
-                            rope[i + 1] = new_pos;
-                        }
-                        if i == knot_length - 2 {
-                            visited_positions.insert(rope[i + 1]);
-                        }
-                    }
+                    rope[0].0 -= 1;
+                    update_rope(length - 1, &mut rope, &mut visited_positions);
                 }
             }
             Movement::Right(distance) => {
                 for _ in 0..*distance {
-                    for i in 0..knot_length - 1 {
-                        if i == 0 {
-                            rope[i].0 += 1;
-                        }
-                        if get_distance_between_positions(&rope[i], &rope[i + 1]) > 1 {
-                            let new_pos = update_knot_position(&rope[i], &rope[i + 1]);
-                            rope[i + 1] = new_pos;
-                        }
-
-                        if i == knot_length - 2 {
-                            visited_positions.insert(rope[i + 1]);
-                        }
-                    }
+                    rope[0].0 += 1;
+                    update_rope(length - 1, &mut rope, &mut visited_positions);
                 }
             }
         }
     }
 
     visited_positions.len()
+}
+
+#[aoc(day9, part1)]
+pub fn solve_part1(input: &Vec<Movement>) -> usize {
+    solve(2, input)
+}
+
+#[aoc(day9, part2)]
+pub fn solve_part2(input: &Vec<Movement>) -> usize {
+    solve(10, input)
 }
