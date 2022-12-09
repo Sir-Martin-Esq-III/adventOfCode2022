@@ -1,7 +1,4 @@
-use core::panic;
-use std::ops::Range;
-
-use itertools::{rev, Itertools};
+use itertools::Itertools;
 
 #[aoc_generator(day8)]
 pub fn input_generator(input: &str) -> Vec<Vec<u32>> {
