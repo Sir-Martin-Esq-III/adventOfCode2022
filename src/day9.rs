@@ -37,8 +37,8 @@ pub fn input_generator(input: &str) -> Vec<Movement> {
         .collect_vec();
 }
 
-fn update_knot_position(p1: &Vec2d, p2: &mut Vec2d) -> Vec2d {
-    let mut new_val: Vec2d = *p2;
+fn update_knot_position(p1: &Vec2d, p2: &Vec2d) -> Vec2d {
+    let mut new_val: Vec2d = p2.clone();
 
     //Straight
     if p1.0 == new_val.0 && p1.1 > new_val.1 {
@@ -74,16 +74,14 @@ fn get_distance_between_positions(p1: &Vec2d, p2: &Vec2d) -> i32 {
     cmp::max(x_diff, y_diff)
 }
 
-fn update_rope(length: usize, rope: &mut [Vec2d], visited: &mut HashSet<Vec2d>) {
+fn update_rope(length: usize, rope: &mut Vec<Vec2d>, visited: &mut HashSet<Vec2d>) {
     for i in 0..length {
-        let current_knot = rope[0];
-        let mut next_knot = rope[i + 1];
-        if get_distance_between_positions(&current_knot, &next_knot) > 1 {
-            rope[i + 1] = update_knot_position(&current_knot, &mut next_knot);
+        if get_distance_between_positions(&rope[i], &rope[i + 1]) > 1 {
+            rope[i + 1] = update_knot_position(&rope[i], &rope[i + 1]);
         }
 
         if i == length - 1 {
-            visited.insert(next_knot);
+            visited.insert(rope[i + 1]);
         }
     }
 }
