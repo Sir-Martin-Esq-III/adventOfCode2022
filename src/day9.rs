@@ -1,6 +1,6 @@
 use std::{cmp, collections::HashSet, hash::BuildHasherDefault};
 extern crate fxhash;
-use fxhash::{FxHasher, FxHasher64};
+use fxhash::FxHasher;
 use itertools::Itertools;
 pub enum Movement {
     Up(i32),
@@ -22,6 +22,7 @@ impl Movement {
 }
 
 type Vec2d = (i32, i32);
+type HashMapFnv<V> = HashSet<V, BuildHasherDefault<FxHasher>>;
 
 #[aoc_generator(day9)]
 pub fn input_generator(input: &str) -> Vec<Movement> {
@@ -38,7 +39,7 @@ pub fn input_generator(input: &str) -> Vec<Movement> {
 }
 
 fn update_knot_position(p1: &Vec2d, p2: &Vec2d) -> Vec2d {
-    let mut new_val: Vec2d = p2.clone();
+    let mut new_val: Vec2d = *p2;
 
     //Straight
     if p1.0 == new_val.0 && p1.1 > new_val.1 {
@@ -78,6 +79,8 @@ fn update_rope(length: usize, rope: &mut Vec<Vec2d>, visited: &mut HashMapFnv<Ve
     for i in 0..length {
         if get_distance_between_positions(&rope[i], &rope[i + 1]) > 1 {
             rope[i + 1] = update_knot_position(&rope[i], &rope[i + 1]);
+        } else {
+            break;
         }
 
         if i == length - 1 {
@@ -85,7 +88,6 @@ fn update_rope(length: usize, rope: &mut Vec<Vec2d>, visited: &mut HashMapFnv<Ve
         }
     }
 }
-type HashMapFnv<V> = HashSet<V, BuildHasherDefault<FxHasher>>;
 
 fn solve(length: usize, input: &Vec<Movement>) -> usize {
     let mut rope: Vec<Vec2d> = vec![(0, 0); length];
