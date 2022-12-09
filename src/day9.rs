@@ -1,7 +1,7 @@
-use std::{cmp, collections::HashSet};
-
+use std::{cmp, collections::HashSet, hash::BuildHasherDefault};
+extern crate fxhash;
+use fxhash::{FxHasher, FxHasher64};
 use itertools::Itertools;
-
 pub enum Movement {
     Up(i32),
     Down(i32),
@@ -74,7 +74,7 @@ fn get_distance_between_positions(p1: &Vec2d, p2: &Vec2d) -> i32 {
     cmp::max(x_diff, y_diff)
 }
 
-fn update_rope(length: usize, rope: &mut Vec<Vec2d>, visited: &mut HashSet<Vec2d>) {
+fn update_rope(length: usize, rope: &mut Vec<Vec2d>, visited: &mut HashMapFnv<Vec2d>) {
     for i in 0..length {
         if get_distance_between_positions(&rope[i], &rope[i + 1]) > 1 {
             rope[i + 1] = update_knot_position(&rope[i], &rope[i + 1]);
@@ -85,10 +85,12 @@ fn update_rope(length: usize, rope: &mut Vec<Vec2d>, visited: &mut HashSet<Vec2d
         }
     }
 }
+type HashMapFnv<V> = HashSet<V, BuildHasherDefault<FxHasher>>;
 
 fn solve(length: usize, input: &Vec<Movement>) -> usize {
     let mut rope: Vec<Vec2d> = vec![(0, 0); length];
-    let mut visited_positions: HashSet<Vec2d> = HashSet::new();
+    let fx = fxhash::FxBuildHasher::default();
+    let mut visited_positions = HashSet::with_capacity_and_hasher(10000, fx);
 
     visited_positions.insert((0, 0));
 
