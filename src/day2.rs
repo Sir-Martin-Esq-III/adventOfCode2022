@@ -38,7 +38,7 @@ impl Move {
     }
 
     fn find_draw(&self) -> &Move {
-        return self;
+        self
     }
 
     fn find_lose(&self) -> Move {
@@ -76,7 +76,7 @@ pub fn input_generator(input: &str) -> Vec<(Move, Move)> {
         .lines()
         .map(|ln| {
             let t = ln.split(' ').collect::<Vec<&str>>();
-            return (Move::new(t[0]), Move::new(t[1]));
+            (Move::new(t[0]), Move::new(t[1]))
         })
         .collect::<Vec<(Move, Move)>>()
 }

@@ -22,7 +22,7 @@ fn check_direction(
     bound: Option<usize>,
 ) -> bool {
     let current_tree_height = board[pos.1][pos.0];
-    let bnd = bound.unwrap_or(0 as usize);
+    let bnd = bound.unwrap_or(0_usize);
 
     match direction {
         Direction::Up => {
@@ -32,7 +32,7 @@ fn check_direction(
                 }
             }
 
-            return true;
+            true
         }
         Direction::Down => {
             for i in (bnd..pos.1).rev() {
@@ -41,7 +41,7 @@ fn check_direction(
                 }
             }
 
-            return true;
+            true
         }
         Direction::Left => {
             for i in (bnd..pos.0).rev() {
@@ -49,7 +49,7 @@ fn check_direction(
                     return false;
                 }
             }
-            return true;
+            true
         }
         Direction::Right => {
             for i in pos.0 + 1..bnd {
@@ -58,7 +58,7 @@ fn check_direction(
                 }
             }
 
-            return true;
+            true
         }
     }
 }
@@ -92,7 +92,7 @@ fn check_scenic(
     bound: Option<usize>,
 ) -> i32 {
     let current_tree_height = board[pos.1][pos.0];
-    let bnd = bound.unwrap_or(0 as usize);
+    let bnd = bound.unwrap_or(0_usize);
     let mut sum: i32 = 0;
 
     match direction {
@@ -104,7 +104,7 @@ fn check_scenic(
                 sum += 1;
             }
 
-            return sum;
+            sum
         }
         Direction::Down => {
             for i in pos.1 + 1..bnd {
@@ -114,7 +114,7 @@ fn check_scenic(
                 sum += 1;
             }
 
-            return sum;
+            sum
         }
 
         Direction::Left => {
@@ -125,7 +125,7 @@ fn check_scenic(
                 sum += 1;
             }
 
-            return sum;
+            sum
         }
         Direction::Right => {
             for i in pos.0 + 1..bnd {
@@ -135,7 +135,7 @@ fn check_scenic(
                 sum += 1;
             }
 
-            return sum;
+            sum
         }
     }
 }

@@ -5,7 +5,7 @@ pub fn input_generator(input: &str) -> Vec<i32> {
         .map(|sp| {
             return sp
                 .split('\n')
-                .map(|input| return input.parse::<i32>().unwrap())
+                .map(|input| input.parse::<i32>().unwrap())
                 .sum::<i32>();
         })
         .collect();

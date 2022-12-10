@@ -9,8 +9,8 @@ impl Instruction {
     fn new(instr: &str) -> Instruction {
         let sp = instr.split_ascii_whitespace().collect_vec();
         match sp[0] {
-            "noop" => return Instruction::Noop(1),
-            "addx" => return Instruction::Addx(2, sp[1].parse::<i32>().unwrap()),
+            "noop" => Instruction::Noop(1),
+            "addx" => Instruction::Addx(2, sp[1].parse::<i32>().unwrap()),
             _ => panic!("no instruction with this name exists"),
         }
     }
@@ -25,18 +25,14 @@ fn calc_next_special_cycle(n: usize) -> i32 {
 pub fn input_generator(input: &str) -> Vec<Instruction> {
     input
         .lines()
-        .map(|ln| Instruction::new(ln))
+        .map(Instruction::new)
         .collect::<Vec<Instruction>>()
 }
 
 fn draw_to_crt(reg: i32, cycle: i32, crt: &mut [char; 240]) {
-    let center = reg;
-    let left = center - 1;
-    let right = center + 1;
-
     let adj_center = cycle - (cycle / 40) * 40;
 
-    if right == adj_center || center == adj_center || left == adj_center {
+    if (reg - 1..=reg + 1).contains(&adj_center) {
         crt[cycle as usize] = '█'
     }
 }
@@ -49,6 +45,7 @@ fn print_crt(crt: &mut [char; 240]) {
         }
     }
 }
+
 #[aoc(day10, part1)]
 pub fn solve_part1(input: &[Instruction]) -> i32 {
     let mut current_cycle = 0;
@@ -82,7 +79,6 @@ pub fn solve_part1(input: &[Instruction]) -> i32 {
 #[aoc(day10, part2)]
 pub fn solve_part2(input: &[Instruction]) -> u8 {
     let mut crt = ['⠀'; 240];
-    let sum: i32 = 0;
     let mut current_cycle: usize = 0;
     let mut register = 1;
 
@@ -95,7 +91,7 @@ pub fn solve_part2(input: &[Instruction]) -> u8 {
             Instruction::Addx(cycle_amount, val) => {
                 for _ in 0..*cycle_amount {
                     draw_to_crt(register, current_cycle as i32, &mut crt);
-                    current_cycle += 1 as usize;
+                    current_cycle += 1_usize;
                 }
                 register += *val;
             }
@@ -103,5 +99,5 @@ pub fn solve_part2(input: &[Instruction]) -> u8 {
     }
 
     print_crt(&mut crt);
-    return 1;
+    1
 }

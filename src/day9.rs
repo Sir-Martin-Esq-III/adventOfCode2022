@@ -65,7 +65,7 @@ fn update_knot_position(p1: &Vec2d, p2: &Vec2d) -> Vec2d {
         new_val.0 -= 1;
     }
 
-    return new_val;
+    new_val
 }
 
 fn get_distance_between_positions(p1: &Vec2d, p2: &Vec2d) -> i32 {
