@@ -29,6 +29,26 @@ pub fn input_generator(input: &str) -> Vec<Instruction> {
         .collect::<Vec<Instruction>>()
 }
 
+fn draw_to_crt(reg: i32, cycle: i32, crt: &mut [char; 240]) {
+    let center = reg;
+    let left = center - 1;
+    let right = center + 1;
+
+    let adj_center = cycle - (cycle / 40) * 40;
+
+    if right == adj_center || center == adj_center || left == adj_center {
+        crt[cycle as usize] = '█'
+    }
+}
+
+fn print_crt(crt: &mut [char; 240]) {
+    for i in 1..crt.len() + 1 {
+        print!("{}", crt[i - 1]);
+        if i % 40 == 0 {
+            println!("\n");
+        }
+    }
+}
 #[aoc(day10, part1)]
 pub fn solve_part1(input: &[Instruction]) -> i32 {
     let mut current_cycle = 0;
@@ -59,10 +79,29 @@ pub fn solve_part1(input: &[Instruction]) -> i32 {
     return signal_strength.iter().sum();
 }
 
-// #[aoc(day10, part2)]
-// pub fn solve_part2(input: &[Instruction]) -> i32 {
-//     let crt: Vec<Vec<char>> = vec![vec!['.'; 40]; 6];
-//     let mut sum: i32 = 0;
+#[aoc(day10, part2)]
+pub fn solve_part2(input: &[Instruction]) -> u8 {
+    let mut crt = ['⠀'; 240];
+    let sum: i32 = 0;
+    let mut current_cycle: usize = 0;
+    let mut register = 1;
 
-//     sum
-// }
+    for instr in input {
+        match instr {
+            Instruction::Noop(cycle_amount) => {
+                draw_to_crt(register, current_cycle as i32, &mut crt);
+                current_cycle += cycle_amount;
+            }
+            Instruction::Addx(cycle_amount, val) => {
+                for _ in 0..*cycle_amount {
+                    draw_to_crt(register, current_cycle as i32, &mut crt);
+                    current_cycle += 1 as usize;
+                }
+                register += *val;
+            }
+        }
+    }
+
+    print_crt(&mut crt);
+    return 1;
+}
