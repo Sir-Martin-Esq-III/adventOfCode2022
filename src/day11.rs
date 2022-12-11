@@ -1,8 +1,8 @@
-use std::collections::BTreeSet;
-use std::ops::AddAssign;
+
+
 use std::{collections::VecDeque, fmt::Debug};
 
-use num::traits::{One, Zero};
+use num::traits::{Zero};
 
 use itertools::Itertools;
 
@@ -33,11 +33,11 @@ impl Monkey {
 
 impl Debug for Monkey {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        return Ok(write!(
+        Ok(write!(
             f,
             "items: {:?} \n test_div: {:?} \n mnkyidx: {:?} \n  inspected_count{:?} \n",
             self.items, self.test_div, self.monkey_idx, self.inspected_counter
-        )?);
+        )?)
     }
 }
 
@@ -47,7 +47,7 @@ fn unoffical_generate_input_because_i_cant_bloody_use_mut_ref_as_an_input_to_the
     return input
         .split("\n\n")
         .map(|monkey| {
-            let sections = monkey.split_terminator("\n").collect_vec();
+            let sections = monkey.split_terminator('\n').collect_vec();
             let op = sections[2].split(" = ").collect_vec()[1]
                 .split_ascii_whitespace()
                 .collect_vec();
@@ -58,7 +58,7 @@ fn unoffical_generate_input_because_i_cant_bloody_use_mut_ref_as_an_input_to_the
                         Box::new(|val: &u64| val + val)
                     } else {
                         let num = op[2].parse::<u64>().unwrap();
-                        Box::new(move |val: &u64| val + num.clone())
+                        Box::new(move |val: &u64| val + num)
                     }
                 }
                 "*" => {
@@ -66,7 +66,7 @@ fn unoffical_generate_input_because_i_cant_bloody_use_mut_ref_as_an_input_to_the
                         Box::new(|val: &u64| val * val)
                     } else {
                         let num = op[2].parse::<u64>().unwrap();
-                        Box::new(move |val: &u64| u64::from(val * &num))
+                        Box::new(move |val: &u64| (val * &num))
                     }
                 }
                 _ => panic!("operation not found"),
@@ -83,10 +83,10 @@ fn unoffical_generate_input_because_i_cant_bloody_use_mut_ref_as_an_input_to_the
 
             let items = sections[1].split(": ").collect_vec()[1]
                 .split(", ")
-                .map(|val| return val.parse::<u64>().unwrap())
+                .map(|val| val.parse::<u64>().unwrap())
                 .collect();
 
-            return Monkey::new(items, div, op_closure, monkey_idx);
+            Monkey::new(items, div, op_closure, monkey_idx)
         })
         .collect_vec();
 }
@@ -120,7 +120,7 @@ fn run_rounds(monkey_list: &mut Vec<Monkey>, rounds: i32) -> u64 {
 
     let mut sorted_list = monkey_list
         .iter()
-        .map(|monkey| return monkey.inspected_counter)
+        .map(|monkey| monkey.inspected_counter)
         .collect_vec();
 
     sorted_list.sort();
