@@ -1,4 +1,4 @@
-use std::{borrow::BorrowMut, cell::Cell, collections::VecDeque, fmt::Debug};
+use std::{collections::VecDeque, fmt::Debug};
 
 use itertools::Itertools;
 
@@ -37,10 +37,10 @@ impl Debug for Monkey {
     }
 }
 
-#[aoc(day11, part1)]
-pub fn solve_part1(input: &str) -> i32 {
-    let rounds = 20;
-    let mut monkey_list = input
+fn unoffical_generate_input_because_i_cant_bloody_use_mut_ref_as_an_input_to_the_solver_functions(
+    input: &str,
+) -> Vec<Monkey> {
+    return input
         .split("\n\n")
         .map(|monkey| {
             let sections = monkey.split_terminator("\n").collect_vec();
@@ -85,6 +85,12 @@ pub fn solve_part1(input: &str) -> i32 {
             return Monkey::new(items, div, op_closure, monkey_idx);
         })
         .collect_vec();
+}
+
+#[aoc(day11, part1)]
+pub fn solve_part1(input: &str) -> i32 {
+    let rounds = 20;
+    let mut monkey_list = unoffical_generate_input_because_i_cant_bloody_use_mut_ref_as_an_input_to_the_solver_functions(input);
 
     for _ in 0..rounds {
         for j in 0..monkey_list.len() {
@@ -116,7 +122,37 @@ pub fn solve_part1(input: &str) -> i32 {
     1
 }
 
-// #[aoc(day11, part2)]
-// pub fn solve_part2(input: &[String]) -> i32 {
-//     1
-// }
+#[aoc(day11, part2)]
+pub fn solve_part2(input: &str) -> i32 {
+    let rounds = 20;
+    let mut monkey_list = unoffical_generate_input_because_i_cant_bloody_use_mut_ref_as_an_input_to_the_solver_functions(input);
+
+    for _ in 0..rounds {
+        for j in 0..monkey_list.len() {
+            for _ in 0..monkey_list[j].items.len() {
+                let new_worry: u32 = ((monkey_list[j].operation)(&monkey_list[j].items[0]) / 3)
+                    .try_into()
+                    .unwrap();
+
+                monkey_list[j].inspected_counter += 1;
+
+                let new_monkey_index: usize;
+
+                if new_worry % monkey_list[j].test_div == 0 {
+                    new_monkey_index = monkey_list[j].monkey_idx[0] as usize;
+                } else {
+                    new_monkey_index = monkey_list[j].monkey_idx[1] as usize;
+                }
+
+                monkey_list[new_monkey_index]
+                    .items
+                    .push_back(new_worry.try_into().unwrap());
+
+                monkey_list[j].items.pop_front();
+            }
+        }
+    }
+
+    println!("{:#?}", monkey_list);
+    1
+}
