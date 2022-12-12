@@ -1,6 +1,12 @@
 use itertools::Itertools;
 
-use pathfinding::directed::dijkstra::dijkstra;
+use pathfinding::directed::{astar::astar, bfs::bfs, dijkstra::dijkstra};
+
+enum PathfindingAlg {
+    BFS,
+    DJI,
+    AST,
+}
 
 #[aoc_generator(day12)]
 pub fn input_generator(input: &str) -> (Vec<Vec<u8>>, (i32, i32), (i32, i32)) {
@@ -39,59 +45,156 @@ fn successor((x, y): &(i32, i32), grid: &Vec<Vec<u8>>) -> Vec<(i32, i32)> {
 
     let current_point_value = grid[*y as usize][*x as usize];
 
-    if within_bounds(y, &0, &(grid.len() as i32 - 1)) && grid[(y - 1) as usize][*x as usize] <= current_point_value + 1 {
+    if within_bounds(y, &0, &(grid.len() as i32 - 1))
+        && grid[(y - 1) as usize][*x as usize] <= current_point_value + 1
+    {
         points.push((*x, y - 1))
     }
 
-    if within_bounds(y, &-1, &(grid.len() as i32 - 2)) && grid[(y + 1) as usize][*x as usize] <= current_point_value + 1 {
+    if within_bounds(y, &-1, &(grid.len() as i32 - 2))
+        && grid[(y + 1) as usize][*x as usize] <= current_point_value + 1
+    {
         points.push((*x, y + 1))
     }
 
-    if within_bounds(x, &0, &(grid[0].len() as i32 - 1)) && grid[*y as usize][(x - 1) as usize] <= current_point_value + 1 {
+    if within_bounds(x, &0, &(grid[0].len() as i32 - 1))
+        && grid[*y as usize][(x - 1) as usize] <= current_point_value + 1
+    {
         points.push((x - 1, *y))
     }
-    if within_bounds(x, &-1, &(grid[0].len() as i32 - 2)) && grid[*y as usize][(x + 1) as usize] <= current_point_value + 1 {
+    if within_bounds(x, &-1, &(grid[0].len() as i32 - 2))
+        && grid[*y as usize][(x + 1) as usize] <= current_point_value + 1
+    {
         points.push((x + 1, *y))
     }
 
     points
 }
 
-#[aoc(day12, part1)]
-pub fn solve_part1(input: &(Vec<Vec<u8>>, (i32, i32), (i32, i32))) -> usize {
-    let res = dijkstra(
-        &input.1,
-        move |f| {
-            successor(f, &input.0).into_iter().map(|p| (p, 1))
-        },
-        |f| *f == input.2,
-    );
+fn run_path_finding_alg(
+    algorithm: PathfindingAlg,
+    start_pos: (i32, i32),
+    end_pos: (i32, i32),
+    grid: &Vec<Vec<u8>>,
+) -> Option<i32> {
+    match algorithm {
+        PathfindingAlg::AST => {
+            //     let res = astar(
+            //         &start_pos,
+            //         move |f| successor(f, grid),
+            //         |F| F,
+            //         |f| *f == end_pos,
+            //     );
 
-    res.unwrap().0.len() - 1
+            //     match res {
+            //         Some(r) => return Some((r.0.len() - 1).try_into().unwrap()),
+            //         None => return None,
+            //     }
+            todo!()
+        }
+        PathfindingAlg::DJI => {
+            let res = dijkstra(
+                &start_pos,
+                move |f| successor(f, grid).into_iter().map(|p| (p, 1)),
+                |f| *f == end_pos,
+            );
+
+            match res {
+                Some(r) => return Some((r.1).try_into().unwrap()),
+                None => return None,
+            }
+        }
+        PathfindingAlg::BFS => {
+            let res = bfs(&start_pos, move |f| successor(f, grid), |f| *f == end_pos);
+
+            match res {
+                Some(r) => return Some((r.len() - 1).try_into().unwrap()),
+                None => return None,
+            }
+        }
+    }
 }
 
-#[aoc(day12, part2)]
-pub fn solve_part2(input: &(Vec<Vec<u8>>, (i32, i32), (i32, i32))) -> i32 {
+#[aoc(day12, part1, dijkstra)]
+pub fn solve_part1_dijkstra(input: &(Vec<Vec<u8>>, (i32, i32), (i32, i32))) -> i32 {
+    run_path_finding_alg(PathfindingAlg::DJI, input.1, input.2, &input.0).unwrap()
+}
+
+#[aoc(day12, part2, dijkstra)]
+pub fn solve_part2_dijkstra(input: &(Vec<Vec<u8>>, (i32, i32), (i32, i32))) -> i32 {
     let mut ans: Vec<i32> = vec![];
     for (y, row) in input.0.iter().enumerate() {
         for (x, val) in row.iter().enumerate() {
             if *val as i32 == 97 {
-                let local_res = dijkstra(
-                    &(x as i32, y as i32),
-                    move |f| {
-                        successor(f, &input.0).into_iter().map(|p| (p, 1))
-                    },
-                    |f| *f == input.2,
+                let local_res = run_path_finding_alg(
+                    PathfindingAlg::DJI,
+                    (x as i32, y as i32),
+                    input.2,
+                    &input.0,
                 );
 
                 if let Some(res) = local_res {
-                    ans.push(res.1);
+                    ans.push(res);
                 }
             }
         }
     }
-
     ans.sort();
-
     *ans.first().unwrap()
 }
+
+#[aoc(day12, part1, bfs)]
+pub fn solve_part1_bfs(input: &(Vec<Vec<u8>>, (i32, i32), (i32, i32))) -> i32 {
+    run_path_finding_alg(PathfindingAlg::BFS, input.1, input.2, &input.0).unwrap()
+}
+
+#[aoc(day12, part2, bfs)]
+pub fn solve_part2_bfs(input: &(Vec<Vec<u8>>, (i32, i32), (i32, i32))) -> i32 {
+    let mut ans: Vec<i32> = vec![];
+    for (y, row) in input.0.iter().enumerate() {
+        for (x, val) in row.iter().enumerate() {
+            if *val as i32 == 97 {
+                let local_res = run_path_finding_alg(
+                    PathfindingAlg::BFS,
+                    (x as i32, y as i32),
+                    input.2,
+                    &input.0,
+                );
+
+                if let Some(res) = local_res {
+                    ans.push(res);
+                }
+            }
+        }
+    }
+    ans.sort();
+    *ans.first().unwrap()
+}
+
+// #[aoc(day12, part1, ast)]
+// pub fn solve_part1_ast(input: &(Vec<Vec<u8>>, (i32, i32), (i32, i32))) -> i32 {
+//     run_path_finding_alg(PathfindingAlg::AST, input.1, input.2, &input.0).unwrap()
+// }
+
+// #[aoc(day12, part2, ast)]
+// pub fn solve_part2_ast(input: &(Vec<Vec<u8>>, (i32, i32), (i32, i32))) -> i32 {
+//     let mut ans: Vec<i32> = vec![];
+//     for (y, row) in input.0.iter().enumerate() {
+//         for (x, val) in row.iter().enumerate() {
+//             if *val as i32 == 97 {
+//                 let local_res = run_path_finding_alg(
+//                     PathfindingAlg::AST,
+//                     (x as i32, y as i32),
+//                     input.2,
+//                     &input.0,
+//                 );
+
+//                 if let Some(res) = local_res {
+//                     ans.push(res);
+//                 }
+//             }
+//         }
+//     }
+//     ans.sort();
+//     *ans.first().unwrap()
+// }
